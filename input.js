@@ -1,18 +1,25 @@
-const { exec } = require('child_process');
+// ❌ Código inseguro para probar BugBot
+const http = require('http');
 const fs = require('fs');
 
-// ❌ Entrada del usuario sin validar
-const input = process.argv[2];
+const PORT = 8080;
 
-// 🔥 1. Command Injection
-exec(`rm -rf ${input}`, (err, stdout, stderr) => {
-  if (err) {
-    console.error("Error:", err);
-    return;
-  }
-  console.log("Deleted:", stdout);
+// ⚠️ Hardcodeando credenciales (mala práctica)
+const username = 'admin';
+const password = '123456';
+
+// ⚠️ Usando eval (muy inseguro)
+function runUserCode(input) {
+    return eval(input);  // Esto puede ejecutar cualquier cosa
+}
+
+// ⚠️ Inyección de contenido en HTML sin sanitizar
+const server = http.createServer((req, res) => {
+    const userInput = req.url.split('=')[1];
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(`<h1>Hola ${userInput}</h1>`);  // No sanitizado
 });
 
-// 🔥 2. Operación bloqueante (sincrónica)
-const data = fs.readFileSync('data.json');
-console.log("Data:", data.toString());
+server.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
